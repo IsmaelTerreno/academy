@@ -4,10 +4,14 @@ from models import Teacher, Student, connect_app_db, db
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
-
+# Connect app to db.
 connect_app_db(app)
+# Later create the structure for domain models.
+db.create_all()
 
 
+#  Routes for the API
+# ##################################################################################
 @app.route("/")
 def index():
     teacher_1 = Teacher(id=uuid4(), name='ismael', last_name='terreno')
@@ -20,9 +24,6 @@ def index():
     db.session.add(teacher_2)
     db.session.commit()
     return "Welcome!"
-
-
-db.create_all()
 
 
 @app.route("/teacher", methods=['POST'])
