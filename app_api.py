@@ -27,7 +27,7 @@ def create_teacher():
     db.session.add(new_teacher)
     db.session.commit()
     return jsonify({
-        'message': 'New student created!',
+        'message': 'New teacher created!',
         'id': new_id
     })
 
@@ -35,7 +35,14 @@ def create_teacher():
 @app.route("/teacher/<teacher_id>", methods=['GET'])
 def view_teacher(teacher_id):
     """ View a particular teacher """
-    return teacher_id
+    teacher = Teacher.query.filter_by(id=teacher_id).first()
+    if not teacher:
+        return jsonify({'message': 'No teacher found!'})
+    return jsonify({
+        'id': teacher.id,
+        'name': teacher.name,
+        'last_name': teacher.last_name
+    })
 
 
 @app.route("/teacher/all", methods=['GET'])
@@ -72,9 +79,11 @@ def view_student(student_id):
     student = Student.query.filter_by(id=student_id).first()
     if not student:
         return jsonify({'message': 'No student found!'})
-
-    student_data = {'public_id': student.id, 'name': student.name}
-    return jsonify(student_data)
+    return jsonify({
+        'id': student.id,
+        'name': student.name,
+        'last_name': student.last_name
+    })
 
 
 @app.route("/student/all", methods=['GET'])
