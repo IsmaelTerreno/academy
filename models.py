@@ -1,5 +1,6 @@
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
+from uuid import uuid4
 
 db = SQLAlchemy()
 
@@ -110,3 +111,15 @@ def connect_app_db(app_to_connect):
         'SQLALCHEMY_DATABASE_URI'] = 'postgresql://%(user)s:%(pw)s@%(host)s:%(port)s/%(db)s' % postgres_config
     db.app = app_to_connect
     db.init_app(app_to_connect)
+
+
+def load_sample_test_data():
+    teacher_1 = Teacher(id=uuid4(), name='ismael', last_name='terreno')
+    teacher_2 = Teacher(id=uuid4(), name='clau', last_name='silva')
+    admin = Student(id=uuid4(), name='logan', last_name='silva')
+    guest = Student(id=uuid4(), name='banner', last_name='silva')
+    db.session.add(admin)
+    db.session.add(guest)
+    db.session.add(teacher_1)
+    db.session.add(teacher_2)
+    db.session.commit()

@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, request
 from uuid import uuid4
-from models import Teacher, Student, connect_app_db, db
+from models import Teacher, Student, connect_app_db, db, load_sample_test_data
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
@@ -14,15 +14,7 @@ db.create_all()
 # ##################################################################################
 @app.route("/")
 def index():
-    teacher_1 = Teacher(id=uuid4(), name='ismael', last_name='terreno')
-    teacher_2 = Teacher(id=uuid4(), name='clau', last_name='silva')
-    admin = Student(id=uuid4(), name='logan', last_name='silva')
-    guest = Student(id=uuid4(), name='banner', last_name='silva')
-    db.session.add(admin)
-    db.session.add(guest)
-    db.session.add(teacher_1)
-    db.session.add(teacher_2)
-    db.session.commit()
+    load_sample_test_data()
     return "Welcome!"
 
 
@@ -30,10 +22,14 @@ def index():
 def create_teacher():
     """ Create a teacher """
     data = request.get_json()
-    new_teacher = Teacher(id=uuid4(), name=data['name'], last_name=data['last_name'])
+    new_id = uuid4()
+    new_teacher = Teacher(id=new_id, name=data['name'], last_name=data['last_name'])
     db.session.add(new_teacher)
     db.session.commit()
-    return jsonify({'message': 'New teacher created!'})
+    return jsonify({
+        'message': 'New student created!',
+        'id': new_id
+    })
 
 
 @app.route("/teacher/<teacher_id>", methods=['GET'])
@@ -60,10 +56,14 @@ def view_all_teachers():
 def create_student():
     """ Create a student """
     data = request.get_json()
-    new_student = Student(id=uuid4(), name=data['name'], last_name=data['last_name'])
+    new_id = uuid4()
+    new_student = Student(id=new_id, name=data['name'], last_name=data['last_name'])
     db.session.add(new_student)
     db.session.commit()
-    return jsonify({'message': 'New student created!'})
+    return jsonify({
+        'message': 'New student created!',
+        'id': new_id
+    })
 
 
 @app.route("/student/<student_id>", methods=['GET'])
