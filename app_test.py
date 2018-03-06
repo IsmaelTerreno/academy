@@ -172,7 +172,7 @@ class AppTestCase(unittest.TestCase):
         self.assertEqual(response_registration.status_code, 200)
         json_response_registration = json.loads(response_registration.get_data(as_text=True))
         message = str(json_response_registration['message'])
-        self.assertTrue(message.__eq__('Registered teacher in class!'))
+        self.assertTrue(message.__eq__('Registered teacher in class!') )
         print('Should register teacher in class by id.')
         print('')
 
