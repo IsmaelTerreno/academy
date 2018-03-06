@@ -58,9 +58,9 @@ class AppTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         json_response = json.loads(response.get_data(as_text=True))
         message = str(json_response['message'])
-        id_teacher = str(json_response['id'])
+        id_student = str(json_response['id'])
         self.assertTrue(message.__eq__('New student created!'))
-        self.assertFalse(id_teacher.__eq__(''))
+        self.assertFalse(id_student.__eq__(''))
         print('Should create student.')
         print('')
 
@@ -86,6 +86,58 @@ class AppTestCase(unittest.TestCase):
         message = str(json_response_view['message'])
         self.assertTrue(message.__eq__('No student found!'))
         print('Should not find student by id.')
+        print('')
+
+    def test_should_create_a_class(self):
+        response = self.app.post('/class', data=json.dumps(dict(
+            name='Java and micro-services with spring',
+        )), content_type='application/json', follow_redirects=True)
+        self.assertEqual(response.status_code, 200)
+        json_response = json.loads(response.get_data(as_text=True))
+        message = str(json_response['message'])
+        id_class = str(json_response['id'])
+        self.assertTrue(message.__eq__('New Class created!'))
+        self.assertFalse(id_class.__eq__(''))
+        print('Should create a Class.')
+        print('')
+
+    def test_should_view_class_by_id(self):
+        response_create = self.app.post('/class', data=json.dumps(dict(
+            name='SPA with Angular and React.js',
+        )), content_type='application/json', follow_redirects=True)
+        self.assertEqual(response_create.status_code, 200)
+        json_response = json.loads(response_create.get_data(as_text=True))
+        id_class = str(json_response['id'])
+        response_view_by_id = self.app.get('/class/{}'.format(id_class), follow_redirects=True)
+        json_response_view = json.loads(response_view_by_id.get_data(as_text=True))
+        id_teacher_view = str(json_response_view['id'])
+        self.assertTrue(id_teacher_view.__eq__(id_class))
+        print('Should find student by id.')
+        print('')
+
+    def test_should_register_student_in_class(self):
+        response_new_student = self.app.post('/student', data=json.dumps(dict(
+            name='Federico Test',
+            last_name='Klan test'
+        )), content_type='application/json', follow_redirects=True)
+        self.assertEqual(response_new_student.status_code, 200)
+        json_response_new_student = json.loads(response_new_student.get_data(as_text=True))
+        student_id = str(json_response_new_student['id'])
+        response_new_class = self.app.post('/class', data=json.dumps(dict(
+            name='Javascript with React Native',
+        )), content_type='application/json', follow_redirects=True)
+        self.assertEqual(response_new_class.status_code, 200)
+        json_response = json.loads(response_new_class.get_data(as_text=True))
+        classes_id = str(json_response['id'])
+        response_registration = self.app.post('/class/student', data=json.dumps(dict(
+            student_id=student_id,
+            classes_id=classes_id
+        )), content_type='application/json', follow_redirects=True)
+        self.assertEqual(response_registration.status_code, 200)
+        json_response_registration = json.loads(response_registration.get_data(as_text=True))
+        message = str(json_response_registration['message'])
+        self.assertTrue(message.__eq__('Registered student in class!'))
+        print('Should register student in class by id.')
         print('')
 
 

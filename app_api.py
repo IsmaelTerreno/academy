@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, request
 from uuid import uuid4
-from models import Teacher, Student, connect_app_db, db, load_sample_test_data
+from models import Teacher, Student, Classes, StudentClassRegistration, connect_app_db, db, load_sample_test_data
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
@@ -92,12 +92,59 @@ def view_all_students():
     students = Student.query.all()
     output = []
     for student in students:
-        teacher_data = {
+        student_data = {
             'id': student.id,
             'name': student.name
         }
-        output.append(teacher_data)
+        output.append(student_data)
     return jsonify(output)
+
+
+@app.route("/class", methods=['POST'])
+def create_class():
+    """ Create a class """
+    data = request.get_json()
+    new_id = uuid4()
+    new_class = Classes(id=new_id, name=data['name'])
+    db.session.add(new_class)
+    db.session.commit()
+    return jsonify({
+        'message': 'New Class created!',
+        'id': new_id
+    })
+
+
+@app.route("/class/<class_id>", methods=['GET'])
+def view_class(class_id):
+    """ View a particular class """
+    class_view = Classes.query.filter_by(id=class_id).first()
+    if not class_view:
+        return jsonify({'message': 'No class found!'})
+    return jsonify({
+        'id': class_view.id,
+        'name': class_view.name
+    })
+
+
+@app.route("/class/student", methods=['POST'])
+def register_student_in_class():
+    data = request.get_json()
+    new_id = uuid4()
+    student_class_registration = StudentClassRegistration(id=new_id,
+                                                          student_id=data['student_id'],
+                                                          classes_id=data['classes_id']
+                                                          )
+    db.session.add(student_class_registration)
+    db.session.commit()
+    return jsonify({
+        'message': 'Registered student in class!',
+        'id': new_id
+    })
+
+
+@app.route("/class/teacher", methods=['POST'])
+def register_teacher_in_class():
+    return ""
 
 
 if __name__ == "__main__":
