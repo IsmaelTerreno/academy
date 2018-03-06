@@ -1,6 +1,13 @@
 from flask import Flask, jsonify, request
 from uuid import uuid4
-from models import Teacher, Student, Classes, StudentClassRegistration, connect_app_db, db, load_sample_test_data
+from models import Teacher, \
+    Student, \
+    Classes, \
+    StudentClassRegistration, \
+    TeacherClassRegistration, \
+    connect_app_db, \
+    db, \
+    load_sample_test_data
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
@@ -144,7 +151,18 @@ def register_student_in_class():
 
 @app.route("/class/teacher", methods=['POST'])
 def register_teacher_in_class():
-    return ""
+    data = request.get_json()
+    new_id = uuid4()
+    teacher_class_registration = TeacherClassRegistration(id=new_id,
+                                                          teacher_id=data['teacher_id'],
+                                                          classes_id=data['classes_id']
+                                                          )
+    db.session.add(teacher_class_registration)
+    db.session.commit()
+    return jsonify({
+        'message': 'Registered teacher in class!',
+        'id': new_id
+    })
 
 
 if __name__ == "__main__":
