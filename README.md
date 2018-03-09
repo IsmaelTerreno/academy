@@ -1,8 +1,10 @@
-# WIP: Academy
-
 # Demo REST API with SQlAlchemy flask postgres and testing.
 
-Use cases to implements:
+## Academy
+
+The idea is one Academy API with some basic requirements.
+
+Use cases implemented:
 
 *   There are Teachers.
 *   There are Students.
