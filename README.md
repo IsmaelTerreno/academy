@@ -1,6 +1,6 @@
 # WIP: Academy
 
-# Demo REST API with sqlalchemy flask postgres and testing.
+# Demo REST API with SQlAlchemy flask postgres and testing.
 
 Use cases to implements:
 
