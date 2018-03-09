@@ -13,6 +13,6 @@ Use cases to implements:
 *   For each teacher, they can calculate each student's total grade accumulated over a semester for their classes.
 
 To run the app first start a database postgres with docker:
-1   `docker pull postgres`
-2   `docker run -p 5432:5432 --name some-postgres -e POSTGRES_PASSWORD=mysecretpassword -d postgres`
+1.   `docker pull postgres`
+2.   `docker run -p 5432:5432 --name some-postgres -e POSTGRES_PASSWORD=mysecretpassword -d postgres`
 
