@@ -5,9 +5,13 @@ from models import Teacher, \
     Classes, \
     StudentClassRegistration, \
     TeacherClassRegistration, \
+    Quiz, \
+    Question, \
+    Answer, \
+    QuestionQuizRegistration, \
+    StudentQuizRegistration, \
     connect_app_db, \
-    db, \
-    load_sample_test_data
+    db
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
@@ -21,7 +25,6 @@ db.create_all()
 # ##################################################################################
 @app.route("/")
 def index():
-    load_sample_test_data()
     return "Welcome!"
 
 
@@ -135,6 +138,7 @@ def view_class(class_id):
 
 @app.route("/class/student", methods=['POST'])
 def register_student_in_class():
+    """ Register a student in a existing class """
     data = request.get_json()
     new_id = uuid4()
     student_class_registration = StudentClassRegistration(id=new_id,
@@ -151,6 +155,7 @@ def register_student_in_class():
 
 @app.route("/class/teacher", methods=['POST'])
 def register_teacher_in_class():
+    """ Register a teacher in a existing class """
     data = request.get_json()
     new_id = uuid4()
     teacher_class_registration = TeacherClassRegistration(id=new_id,
@@ -161,6 +166,82 @@ def register_teacher_in_class():
     db.session.commit()
     return jsonify({
         'message': 'Registered teacher in class!',
+        'id': new_id
+    })
+
+
+@app.route("/quiz", methods=['POST'])
+def create_quiz():
+    """ Create a Quiz """
+    data = request.get_json()
+    new_id = uuid4()
+    new_quiz = Quiz(id=new_id, name=data['name'])
+    db.session.add(new_quiz)
+    db.session.commit()
+    return jsonify({
+        'message': 'New Quiz created!',
+        'id': new_id
+    })
+
+
+@app.route("/quiz/question", methods=['POST'])
+def register_question_in_quiz():
+    """ Register a question in a existing quiz """
+    data = request.get_json()
+    new_id = uuid4()
+    question_quiz_registration = QuestionQuizRegistration(id=new_id,
+                                                          question_id=data['question_id'],
+                                                          quiz_id=data['quiz_id']
+                                                          )
+    db.session.add(question_quiz_registration)
+    db.session.commit()
+    return jsonify({
+        'message': 'Registered question in quiz!',
+        'id': new_id
+    })
+
+
+@app.route("/quiz/student", methods=['POST'])
+def register_student_in_quiz():
+    """ Register a question in a existing quiz """
+    data = request.get_json()
+    new_id = uuid4()
+    student_quiz_registration = StudentQuizRegistration(id=new_id,
+                                                        student_id=data['student_id'],
+                                                        quiz_id=data['quiz_id']
+                                                        )
+    db.session.add(student_quiz_registration)
+    db.session.commit()
+    return jsonify({
+        'message': 'Registered student in quiz!',
+        'id': new_id
+    })
+
+
+@app.route("/question", methods=['POST'])
+def create_question():
+    """ Create a Question """
+    data = request.get_json()
+    new_id = uuid4()
+    new_question = Question(id=new_id, description=data['description'])
+    db.session.add(new_question)
+    db.session.commit()
+    return jsonify({
+        'message': 'New Question created!',
+        'id': new_id
+    })
+
+
+@app.route("/answer", methods=['POST'])
+def create_answer():
+    """ Create a Answer """
+    data = request.get_json()
+    new_id = uuid4()
+    new_answer = Answer(id=new_id, description=data['description'])
+    db.session.add(new_answer)
+    db.session.commit()
+    return jsonify({
+        'message': 'New Answer created!',
         'id': new_id
     })
 

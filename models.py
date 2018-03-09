@@ -44,7 +44,7 @@ class TeacherClassRegistration(db.Model):
     creation_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
     def __repr__(self):
-        return '<StudentClassRegistration %r>' % self.name
+        return '<TeacherClassRegistration %r>' % self.name
 
 
 class Classes(db.Model):
@@ -68,7 +68,7 @@ class StudentQuizRegistration(db.Model):
 
 class Quiz(db.Model):
     id = db.Column(db.String, primary_key=True)
-    name = db.Column(db.String(80), unique=False, nullable=False)
+    name = db.Column(db.String(150), unique=False, nullable=False)
     creation_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
     def __repr__(self):
@@ -77,7 +77,7 @@ class Quiz(db.Model):
 
 class QuestionQuizRegistration(db.Model):
     id = db.Column(db.String, primary_key=True)
-    student_id = db.Column(db.String, db.ForeignKey('question.id'), nullable=False)
+    question_id = db.Column(db.String, db.ForeignKey('question.id'), nullable=False)
     quiz_id = db.Column(db.String, db.ForeignKey('quiz.id'), nullable=False)
     creation_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
@@ -87,11 +87,42 @@ class QuestionQuizRegistration(db.Model):
 
 class Question(db.Model):
     id = db.Column(db.String, primary_key=True)
-    name = db.Column(db.String(80), unique=False, nullable=False)
+    description = db.Column(db.String(500), unique=False, nullable=False)
     creation_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
     def __repr__(self):
         return '<Question %r>' % self.name
+
+
+class QuestionAnswerRegistration(db.Model):
+    id = db.Column(db.String, primary_key=True)
+    question_id = db.Column(db.String, db.ForeignKey('question.id'), nullable=False)
+    answer_id = db.Column(db.String, db.ForeignKey('answer.id'), nullable=False)
+    creation_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
+    def __repr__(self):
+        return '<QuestionQuizRegistration %r>' % self.name
+
+
+class Answer(db.Model):
+    id = db.Column(db.String, primary_key=True)
+    description = db.Column(db.String(250), unique=False, nullable=False)
+    creation_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
+    def __repr__(self):
+        return '<Answer %r>' % self.name
+
+
+class StudentAnswerQuestionQuizRegistration(db.Model):
+    id = db.Column(db.String, primary_key=True)
+    student_id = db.Column(db.String, db.ForeignKey('student.id'), nullable=False)
+    answer_id = db.Column(db.String, db.ForeignKey('answer.id'), nullable=False)
+    question_id = db.Column(db.String, db.ForeignKey('question.id'), nullable=False)
+    quiz_id = db.Column(db.String, db.ForeignKey('quiz.id'), nullable=False)
+    creation_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
+    def __repr__(self):
+        return '<QuestionQuizRegistration %r>' % self.name
 
 
 #  Database related
