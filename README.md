@@ -14,5 +14,5 @@ Use cases to implements:
 
 To run the app first start a database postgres with :
 
-  docker run -p 5432:5432 --name some-postgres -e POSTGRES_PASSWORD=mysecretpassword -d postgres
+  `docker run -p 5432:5432 --name some-postgres -e POSTGRES_PASSWORD=mysecretpassword -d postgres`
 
