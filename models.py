@@ -134,10 +134,18 @@ def connect_app_db(app_to_connect):
     postgres_config = {
         'user': 'postgres',
         'pw': 'mysecretpassword',
-        'db': 'university',
+        'db': 'postgres',
         'host': 'localhost',
         'port': '5432',
     }
+    if app_to_connect.testing is True:
+        postgres_config = {
+            'user': 'postgres',
+            'pw': 'mysecretpassword',
+            'db': 'postgres_testing',
+            'host': 'localhost',
+            'port': '5432',
+        }
     app_to_connect.config[
         'SQLALCHEMY_DATABASE_URI'] = 'postgresql://%(user)s:%(pw)s@%(host)s:%(port)s/%(db)s' % postgres_config
     db.app = app_to_connect

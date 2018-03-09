@@ -8,6 +8,7 @@ class AppTestCase(unittest.TestCase):
     APPLICATION_JSON_CONTENT_TYPE = 'application/json'
 
     def setUp(self):
+        app_api.app.testing = True
         self.app = app_api.app.test_client()
 
     def test_index_api(self):
@@ -204,7 +205,7 @@ class AppTestCase(unittest.TestCase):
 
     def test_should_create_a_answer(self):
         response = self.app.post('/answer', data=json.dumps(dict(
-            description='Does Python is dynamically typed?'
+            description='Yes Python is dynamically typed'
         )), content_type=AppTestCase.APPLICATION_JSON_CONTENT_TYPE, follow_redirects=True)
         self.assertEqual(response.status_code, 200)
         json_response = json.loads(response.get_data(as_text=True))
@@ -262,6 +263,45 @@ class AppTestCase(unittest.TestCase):
         message = str(json_response_registration['message'])
         self.assertTrue(message.__eq__('Registered student in quiz!'))
         print('Should register student in quiz by id.')
+        print('')
+
+    def test_should_register_student_answer_in_quiz(self):
+        response_new_student = self.app.post('/student', data=json.dumps(dict(
+            name='Esteban Test',
+            last_name='Dakame test'
+        )), content_type=AppTestCase.APPLICATION_JSON_CONTENT_TYPE, follow_redirects=True)
+        self.assertEqual(response_new_student.status_code, 200)
+        json_response_new_student = json.loads(response_new_student.get_data(as_text=True))
+        student_id = str(json_response_new_student['id'])
+        response_new_quiz = self.app.post('/quiz', data=json.dumps(dict(
+            name='Test Development Driven'
+        )), content_type=AppTestCase.APPLICATION_JSON_CONTENT_TYPE, follow_redirects=True)
+        self.assertEqual(response_new_quiz.status_code, 200)
+        json_response_new_quiz = json.loads(response_new_quiz.get_data(as_text=True))
+        quiz_id = str(json_response_new_quiz['id'])
+        response_new_question = self.app.post('/question', data=json.dumps(dict(
+            description='What is the RGR meaning?'
+        )), content_type=AppTestCase.APPLICATION_JSON_CONTENT_TYPE, follow_redirects=True)
+        self.assertEqual(response_new_question.status_code, 200)
+        json_response_new_question = json.loads(response_new_question.get_data(as_text=True))
+        question_id = str(json_response_new_question['id'])
+        response_new_answer = self.app.post('/answer', data=json.dumps(dict(
+            description='Red Green Refactor'
+        )), content_type=AppTestCase.APPLICATION_JSON_CONTENT_TYPE, follow_redirects=True)
+        self.assertEqual(response_new_answer.status_code, 200)
+        json_response_new_answer = json.loads(response_new_answer.get_data(as_text=True))
+        answer_id = str(json_response_new_answer['id'])
+        response_registration = self.app.post('/quiz/student/answer', data=json.dumps(dict(
+            student_id=student_id,
+            answer_id=answer_id,
+            question_id=question_id,
+            quiz_id=quiz_id
+        )), content_type=AppTestCase.APPLICATION_JSON_CONTENT_TYPE, follow_redirects=True)
+        self.assertEqual(response_registration.status_code, 200)
+        json_response_registration = json.loads(response_registration.get_data(as_text=True))
+        message = str(json_response_registration['message'])
+        self.assertTrue(message.__eq__('Registered student answer in quiz!'))
+        print('Should register student answer in quiz by id.')
         print('')
 
 

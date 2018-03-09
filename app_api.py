@@ -10,6 +10,7 @@ from models import Teacher, \
     Answer, \
     QuestionQuizRegistration, \
     StudentQuizRegistration, \
+    StudentAnswerQuestionQuizRegistration, \
     connect_app_db, \
     db
 
@@ -203,7 +204,7 @@ def register_question_in_quiz():
 
 @app.route("/quiz/student", methods=['POST'])
 def register_student_in_quiz():
-    """ Register a question in a existing quiz """
+    """ Register a student in a existing quiz """
     data = request.get_json()
     new_id = uuid4()
     student_quiz_registration = StudentQuizRegistration(id=new_id,
@@ -214,6 +215,26 @@ def register_student_in_quiz():
     db.session.commit()
     return jsonify({
         'message': 'Registered student in quiz!',
+        'id': new_id
+    })
+
+
+@app.route("/quiz/student/answer", methods=['POST'])
+def register_student_answer_in_quiz():
+    """ Register a student answer in a existing quiz """
+    data = request.get_json()
+    new_id = uuid4()
+    student_answer_quiz_registration = \
+        StudentAnswerQuestionQuizRegistration(id=new_id,
+                                              student_id=data['student_id'],
+                                              answer_id=data['answer_id'],
+                                              question_id=data['question_id'],
+                                              quiz_id=data['quiz_id']
+                                              )
+    db.session.add(student_answer_quiz_registration)
+    db.session.commit()
+    return jsonify({
+        'message': 'Registered student answer in quiz!',
         'id': new_id
     })
 
