@@ -1,4 +1,4 @@
-# Demo REST API with SQlAlchemy flask postgres and testing.
+# Demo REST API with SQLAlchemy flask postgres and testing.
 
 ## Academy
 
@@ -18,3 +18,7 @@ To run the app first start a database postgres with docker:
 1.   `docker pull postgres`
 2.   `docker run -p 5432:5432 --name some-postgres -e POSTGRES_PASSWORD=mysecretpassword -d postgres`
 
+All the Tables will be created if not exits.
+
+
+Note: Python version 3.6 was used.
