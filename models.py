@@ -94,14 +94,14 @@ class Question(db.Model):
         return '<Question %r>' % self.name
 
 
-class QuestionAnswerRegistration(db.Model):
+class AnswerQuestionRegistration(db.Model):
     id = db.Column(db.String, primary_key=True)
     question_id = db.Column(db.String, db.ForeignKey('question.id'), nullable=False)
     answer_id = db.Column(db.String, db.ForeignKey('answer.id'), nullable=False)
     creation_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
     def __repr__(self):
-        return '<QuestionQuizRegistration %r>' % self.name
+        return '<QuestionAnswerRegistration %r>' % self.name
 
 
 class Answer(db.Model):
@@ -113,16 +113,26 @@ class Answer(db.Model):
         return '<Answer %r>' % self.name
 
 
-class StudentAnswerQuestionQuizRegistration(db.Model):
+class StudentAnswerRegistration(db.Model):
     id = db.Column(db.String, primary_key=True)
     student_id = db.Column(db.String, db.ForeignKey('student.id'), nullable=False)
     answer_id = db.Column(db.String, db.ForeignKey('answer.id'), nullable=False)
-    question_id = db.Column(db.String, db.ForeignKey('question.id'), nullable=False)
-    quiz_id = db.Column(db.String, db.ForeignKey('quiz.id'), nullable=False)
+    response = db.Column(db.Boolean, nullable=False)
     creation_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
     def __repr__(self):
-        return '<QuestionQuizRegistration %r>' % self.name
+        return '<StudentAnswerRegistration %r>' % self.name
+
+
+class TeacherGradeAnswerRegistration(db.Model):
+    id = db.Column(db.String, primary_key=True)
+    student_answer_registration_id = db.Column(db.String, db.ForeignKey('student_answer_registration.id'), nullable=False)
+    teacher_id = db.Column(db.String, db.ForeignKey('teacher.id'), nullable=False)
+    is_correct = db.Column(db.Boolean, nullable=False)
+    creation_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
+    def __repr__(self):
+        return '<TeacherGradeAnswerRegistration %r>' % self.name
 
 
 #  Database related

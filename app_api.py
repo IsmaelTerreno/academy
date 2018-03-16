@@ -10,7 +10,9 @@ from models import Teacher, \
     Answer, \
     QuestionQuizRegistration, \
     StudentQuizRegistration, \
-    StudentAnswerQuestionQuizRegistration, \
+    StudentAnswerRegistration, \
+    AnswerQuestionRegistration, \
+    TeacherGradeAnswerRegistration, \
     connect_app_db, \
     db
 
@@ -219,22 +221,21 @@ def register_student_in_quiz():
     })
 
 
-@app.route("/quiz/student/answer", methods=['POST'])
-def register_student_answer_in_quiz():
-    """ Register a student answer in a existing quiz """
+@app.route("/student/answer", methods=['POST'])
+def register_student_answer_in_question():
+    """ Register a student answer in a existing question """
     data = request.get_json()
     new_id = uuid4()
-    student_answer_quiz_registration = \
-        StudentAnswerQuestionQuizRegistration(id=new_id,
-                                              student_id=data['student_id'],
-                                              answer_id=data['answer_id'],
-                                              question_id=data['question_id'],
-                                              quiz_id=data['quiz_id']
-                                              )
-    db.session.add(student_answer_quiz_registration)
+    student_answer_registration = \
+        StudentAnswerRegistration(id=new_id,
+                                  student_id=data['student_id'],
+                                  answer_id=data['answer_id'],
+                                  response=bool(data['response'])
+                                  )
+    db.session.add(student_answer_registration)
     db.session.commit()
     return jsonify({
-        'message': 'Registered student answer in quiz!',
+        'message': 'Registered student answer in question!',
         'id': new_id
     })
 
@@ -263,6 +264,43 @@ def create_answer():
     db.session.commit()
     return jsonify({
         'message': 'New Answer created!',
+        'id': new_id
+    })
+
+
+@app.route("/question/answer", methods=['POST'])
+def register_answer_in_question():
+    """ Register a answer in a existing question """
+    data = request.get_json()
+    new_id = uuid4()
+    answer_question_registration = \
+        AnswerQuestionRegistration(id=new_id,
+                                   question_id=data['question_id'],
+                                   answer_id=data['answer_id']
+                                   )
+    db.session.add(answer_question_registration)
+    db.session.commit()
+    return jsonify({
+        'message': 'Registered answer in question!',
+        'id': new_id
+    })
+
+
+@app.route("/answer/grade", methods=['POST'])
+def register_grade_in_answer():
+    """ Register a grade in a existing answer """
+    data = request.get_json()
+    new_id = uuid4()
+    grade_answer_registration = \
+        TeacherGradeAnswerRegistration(id=new_id,
+                                       student_answer_registration_id=data['student_answer_registration_id'],
+                                       teacher_id=data['teacher_id'],
+                                       is_correct=data['is_correct']
+                                       )
+    db.session.add(grade_answer_registration)
+    db.session.commit()
+    return jsonify({
+        'message': 'Registered teacher grade in answer!',
         'id': new_id
     })
 
