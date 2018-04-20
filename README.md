@@ -1,4 +1,4 @@
-# Demo REST API with SQLAlchemy flask postgres and testing.
+# Demo REST API with SQLAlchemy flask postgres and unit testing.
 
 ## Academy
 
