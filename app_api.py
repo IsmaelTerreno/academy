@@ -1,4 +1,6 @@
 from flask import Flask, jsonify, request
+from sqlalchemy.sql import func
+from datetime import datetime
 from uuid import uuid4
 from models import Teacher, \
     Student, \
@@ -12,7 +14,7 @@ from models import Teacher, \
     StudentQuizRegistration, \
     StudentAnswerRegistration, \
     AnswerQuestionRegistration, \
-    TeacherGradeAnswerRegistration, \
+    TeacherGradeQuizRegistration, \
     connect_app_db, \
     db
 
@@ -72,6 +74,48 @@ def view_all_teachers():
     return jsonify(output)
 
 
+@app.route("/teacher/<string:teacher_id>/student/<string:student_id>/semester/<int:semester_number_to_ask>/grade",
+           methods=['GET'])
+def teacher_student_semester_grade(teacher_id, student_id, semester_number_to_ask):
+    semester_date_range_from = ''
+    semester_date_range_to = ''
+    if semester_number_to_ask == 1:
+        year = str(datetime.now().year)
+        semester_date_range_from = '{}-01-01'.format(year)
+        semester_date_range_to = '{}-06-30'.format(year)
+    elif semester_number_to_ask == 2:
+        year = str(datetime.now().year)
+        semester_date_range_from = '{}-07-01'.format(year)
+        semester_date_range_to = '{}-12-31'.format(year)
+    if semester_date_range_from == '' and semester_date_range_to == '':
+        return jsonify({
+            'message': 'Invalid semester number must be 1 or 2 only!'
+        })
+    name, last_name, grade_accumulated = db.session.query(
+        Student.name,
+        Student.last_name, func.sum(TeacherGradeQuizRegistration.score)
+        .label("grade_accumulated")) \
+        .join(StudentQuizRegistration,
+              Student.id ==
+              StudentQuizRegistration.student_id) \
+        .join(TeacherGradeQuizRegistration,
+              StudentQuizRegistration.id ==
+              TeacherGradeQuizRegistration.student_quiz_registration_id) \
+        .filter(StudentQuizRegistration.student_id == student_id) \
+        .filter(TeacherGradeQuizRegistration.teacher_id == teacher_id) \
+        .filter(TeacherGradeQuizRegistration.creation_date.between(
+            semester_date_range_from, semester_date_range_to)) \
+        .group_by(Student.name, Student.last_name) \
+        .first()
+
+    return jsonify({
+        'message': 'Result found for student!',
+        'name': name,
+        'last_name': last_name,
+        'grade_accumulated': grade_accumulated,
+    })
+
+
 @app.route("/student", methods=['POST'])
 def create_student():
     """ Create a student """
@@ -111,6 +155,44 @@ def view_all_students():
         }
         output.append(student_data)
     return jsonify(output)
+
+
+@app.route("/student/answer", methods=['POST'])
+def register_student_answer_in_question():
+    """ Register a student answer in a existing question """
+    data = request.get_json()
+    new_id = uuid4()
+    student_answer_registration = \
+        StudentAnswerRegistration(id=new_id,
+                                  student_id=data['student_id'],
+                                  answer_id=data['answer_id'],
+                                  response=bool(data['response'])
+                                  )
+    db.session.add(student_answer_registration)
+    db.session.commit()
+    return jsonify({
+        'message': 'Registered student answer in question!',
+        'id': new_id
+    })
+
+
+@app.route("/student/quiz/grade", methods=['POST'])
+def register_grade_in_answer():
+    """ Register a grade in a existing answer """
+    data = request.get_json()
+    new_id = uuid4()
+    grade_answer_registration = \
+        TeacherGradeQuizRegistration(id=new_id,
+                                     student_quiz_registration_id=data['student_quiz_registration_id'],
+                                     teacher_id=data['teacher_id'],
+                                     score=data['score']
+                                     )
+    db.session.add(grade_answer_registration)
+    db.session.commit()
+    return jsonify({
+        'message': 'Registered teacher grade in quiz!',
+        'id': new_id
+    })
 
 
 @app.route("/class", methods=['POST'])
@@ -221,25 +303,6 @@ def register_student_in_quiz():
     })
 
 
-@app.route("/student/answer", methods=['POST'])
-def register_student_answer_in_question():
-    """ Register a student answer in a existing question """
-    data = request.get_json()
-    new_id = uuid4()
-    student_answer_registration = \
-        StudentAnswerRegistration(id=new_id,
-                                  student_id=data['student_id'],
-                                  answer_id=data['answer_id'],
-                                  response=bool(data['response'])
-                                  )
-    db.session.add(student_answer_registration)
-    db.session.commit()
-    return jsonify({
-        'message': 'Registered student answer in question!',
-        'id': new_id
-    })
-
-
 @app.route("/question", methods=['POST'])
 def create_question():
     """ Create a Question """
@@ -250,20 +313,6 @@ def create_question():
     db.session.commit()
     return jsonify({
         'message': 'New Question created!',
-        'id': new_id
-    })
-
-
-@app.route("/answer", methods=['POST'])
-def create_answer():
-    """ Create a Answer """
-    data = request.get_json()
-    new_id = uuid4()
-    new_answer = Answer(id=new_id, description=data['description'])
-    db.session.add(new_answer)
-    db.session.commit()
-    return jsonify({
-        'message': 'New Answer created!',
         'id': new_id
     })
 
@@ -286,21 +335,16 @@ def register_answer_in_question():
     })
 
 
-@app.route("/answer/grade", methods=['POST'])
-def register_grade_in_answer():
-    """ Register a grade in a existing answer """
+@app.route("/answer", methods=['POST'])
+def create_answer():
+    """ Create a Answer """
     data = request.get_json()
     new_id = uuid4()
-    grade_answer_registration = \
-        TeacherGradeAnswerRegistration(id=new_id,
-                                       student_answer_registration_id=data['student_answer_registration_id'],
-                                       teacher_id=data['teacher_id'],
-                                       is_correct=data['is_correct']
-                                       )
-    db.session.add(grade_answer_registration)
+    new_answer = Answer(id=new_id, description=data['description'])
+    db.session.add(new_answer)
     db.session.commit()
     return jsonify({
-        'message': 'Registered teacher grade in answer!',
+        'message': 'New Answer created!',
         'id': new_id
     })
 
