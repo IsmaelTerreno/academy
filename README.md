@@ -24,6 +24,6 @@ All the Tables will be created if not exits.
 Note: Python version 3.6 was used.
 
 
-If you see it and you like it, do not hesitate to give me a star or just follow me.
+Do not hesitate to give me a star or just follow me.
 
 I hope you like it.
